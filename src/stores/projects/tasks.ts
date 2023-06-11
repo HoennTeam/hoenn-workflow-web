@@ -108,18 +108,23 @@ export const useTasksStore = defineStore('tasks', {
         this.$toaster.error(e as string)
       }
     },
-    async saveTask() {
+    async updateTask(data: { title?: string; description?: string }) {
       const projectsStore = useProjectsStore()
 
       try {
         if (!projectsStore.project || !projectsStore.board || !this.task) return
 
         const updated = (
-          await api.patch<FullTask>(`/tasks/${this.task.id}`, {
-            title: this.task.title,
-            description: this.task.description,
-          })
+          await api.patch<FullTask>(`/tasks/${this.task.id}`, data)
         ).data
+
+        Object.assign(this.task, updated)
+        const existingTask = projectsStore.board.tasks.find(
+          (t) => t.id === updated.id
+        )
+        if (existingTask) {
+          Object.assign(existingTask, updated)
+        }
       } catch (e: unknown) {
         this.$toaster.error(e as string)
       }

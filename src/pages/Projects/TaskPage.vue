@@ -5,13 +5,10 @@
     <div class="mr-4 flex flex-1 flex-col items-stretch">
       <div>
         <input
-          v-if="editing"
-          v-model="task.title"
+          v-model="form.title"
           type="text"
-          class="w-full rounded border-none bg-gray-50 p-1 text-lg font-bold text-gray-800 outline-none hover:bg-gray-200 hover:ring-0 focus:ring-0 active:ring-0" />
-        <div v-else class="w-full p-1 text-lg font-bold text-gray-800">
-          {{ task.title }}
-        </div>
+          class="w-full rounded border-none bg-gray-50 p-1 text-lg font-bold text-gray-800 outline-none hover:bg-gray-200 hover:ring-0 focus:ring-0 active:ring-0"
+          @input="save" />
       </div>
       <div class="mt-2 h-full max-h-full flex-1 overflow-auto">
         <textarea
@@ -20,8 +17,18 @@
           class="w-full rounded border-none bg-gray-50 p-1 text-gray-800 outline-none hover:bg-gray-200 hover:ring-0 focus:ring-0 active:ring-0" />
         <div
           v-if="!editing"
-          class="prose prose-sm h-full w-full p-1 text-gray-800"
+          class="prose prose-sm w-full p-1 text-gray-800"
           v-html="descriptionMarkdown"></div>
+
+        <div class="mt-1 flex flex-row items-center">
+          <AppButton
+            v-if="editing"
+            class="ml-auto w-20"
+            size="sm"
+            @click="toggleEditing">
+            Save
+          </AppButton>
+        </div>
       </div>
     </div>
 
@@ -120,6 +127,7 @@ import { useTasksStore } from '../../stores/projects/tasks'
 import UsersSelector from '../../components/UsersSelector.vue'
 import { useProjectsStore } from '../../stores/projects/projects'
 import { User } from '../../types/user'
+import { modifiedFields } from '../../utils'
 
 let easymde: EasyMDE
 
@@ -130,6 +138,10 @@ export default defineComponent({
       editing: false,
       showAssigneesSelector: false,
       copied: false,
+      form: {
+        title: '',
+        description: '',
+      },
     }
   },
   computed: {
@@ -150,9 +162,25 @@ export default defineComponent({
         )
     },
   },
+  mounted() {
+    Object.assign(this.form, {
+      title: this.task?.title,
+      description: this.task?.description,
+    })
+  },
   methods: {
     save() {
-      this.tasksStore.saveTask()
+      if (!this.task) return
+
+      this.tasksStore.updateTask(
+        modifiedFields(
+          {
+            title: this.task.title,
+            description: this.task.description,
+          },
+          this.form
+        )
+      )
     },
     addUserToTask(username: string) {
       this.showAssigneesSelector = false
@@ -184,9 +212,9 @@ export default defineComponent({
       easymde.codemirror.on('change', () => {
         if (!this.task) return
 
-        this.task.description = easymde.value()
+        this.form.description = easymde.value()
       })
-      easymde.value(this.task.description)
+      easymde.value(this.form.description)
     },
     disableEditing() {
       this.editing = false
