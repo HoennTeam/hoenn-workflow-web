@@ -43,7 +43,35 @@
     <ModalWindow v-if="showBoardsSelector" @close="showBoardsSelector = false">
       <BoardSelector
         :project="project"
-        @switched="(boardId: number) => switchBoard(boardId)" />
+        @switched="(boardId: number) => switchBoard(boardId)"
+        @create="openBoardCreationModal" />
+    </ModalWindow>
+
+    <ModalWindow
+      v-if="showCreateBoardModal"
+      @close="showCreateBoardModal = false">
+      <div
+        class="w-1/3 min-w-max rounded-lg border border-gray-400 bg-white p-2 shadow-md">
+        <form
+          class="flex flex-col items-stretch space-y-6 p-8"
+          @submit.prevent="createBoard">
+          <h1 class="text-center text-2xl text-gray-800">New board</h1>
+          <TextBox v-model="form.name" placeholder="Board name" />
+
+          <div class="flex flex-row justify-center space-x-6">
+            <AppButton type="submit" variant="primary" class="w-32"
+              >Create</AppButton
+            >
+            <AppButton
+              type="button"
+              variant="secondary"
+              class="w-32"
+              @click="showCreateBoardModal = false"
+              >Cancel</AppButton
+            >
+          </div>
+        </form>
+      </div>
     </ModalWindow>
   </div>
 </template>
@@ -62,6 +90,10 @@ export default defineComponent({
   data() {
     return {
       showBoardsSelector: false,
+      showCreateBoardModal: false,
+      form: {
+        name: '',
+      },
     }
   },
   computed: {
@@ -77,10 +109,25 @@ export default defineComponent({
     }
   },
   methods: {
+    async createBoard() {
+      this.showCreateBoardModal = false
+
+      this.projectsStore.createBoard({
+        name: this.form.name,
+      })
+
+      this.form = {
+        name: '',
+      }
+    },
     async switchBoard(boardId: number) {
       this.showBoardsSelector = false
 
       await this.projectsStore.loadBoard(boardId.toString())
+    },
+    openBoardCreationModal() {
+      this.showBoardsSelector = false
+      this.showCreateBoardModal = true
     },
   },
 })

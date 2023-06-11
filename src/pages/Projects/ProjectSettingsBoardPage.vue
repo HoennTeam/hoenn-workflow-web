@@ -50,7 +50,10 @@
     <div class="mt-6">
       <div class="col-span-2 mb-4 font-bold">Danger zone</div>
 
-      <AppButton variant="danger" @click="deleteBoard">
+      <AppButton
+        variant="danger"
+        :disabled="board?.isDefault"
+        @click="deleteBoard">
         Delete board
       </AppButton>
     </div>
@@ -130,6 +133,10 @@ export default defineComponent({
     },
     async save() {
       this.isModified = false
+
+      await this.projectsStore.updateBoard({
+        name: this.form.name,
+      })
     },
     reset() {
       if (!this.board) return
@@ -139,8 +146,10 @@ export default defineComponent({
       })
       this.isModified = false
     },
-    deleteBoard() {
-      console.log('Delete board')
+    async deleteBoard() {
+      if (!this.board) return
+
+      await this.projectsStore.deleteBoard(this.board.id)
     },
     deleteStage(stageId: number) {
       if (!this.board) return

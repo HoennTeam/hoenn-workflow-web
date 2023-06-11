@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { api } from '../../api'
 import { Project } from '../../types/project'
-import { BoardFull } from '../../types/board'
+import { Board, BoardFull } from '../../types/board'
 import { ProjectUserResponse } from '../../types/project-user'
 
 export const useProjectsStore = defineStore('projects', {
@@ -86,7 +86,66 @@ export const useProjectsStore = defineStore('projects', {
           await api.patch<Project>(`/projects/${this.project.id}`, data)
         ).data
 
-        this.project = project
+        Object.assign(this.project, project)
+      } catch (e: unknown) {
+        this.$toaster.error(e as string)
+      }
+    },
+    async createBoard(data: { name: string }) {
+      try {
+        if (!this.project) {
+          return
+        }
+
+        const board = (
+          await api.post<Board>(`/projects/${this.project.id}/boards`, data)
+        ).data
+
+        this.project.boards.push(board)
+
+        await this.loadBoard(board.id.toString())
+      } catch (e: unknown) {
+        this.$toaster.error(e as string)
+      }
+    },
+    async updateBoard(data: { name?: string }) {
+      try {
+        if (!this.project || !this.board) return
+
+        const board = (
+          await api.patch<Board>(
+            `/projects/${this.project.id}/boards/${this.board.id}`,
+            data
+          )
+        ).data
+
+        const existingBoard = this.project.boards.find(
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          (b) => b.id === this.board!.id
+        )
+        if (existingBoard) {
+          Object.assign(existingBoard, board)
+        }
+
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        Object.assign(this.board!, board)
+      } catch (e: unknown) {
+        this.$toaster.error(e as string)
+      }
+    },
+    async deleteBoard(boardId: number) {
+      try {
+        if (!this.project) {
+          return
+        }
+
+        await api.delete(`/projects/${this.project.id}/boards/${boardId}`)
+
+        this.project.boards = this.project.boards.filter(
+          (b) => b.id !== boardId
+        )
+
+        await this.loadBoard()
       } catch (e: unknown) {
         this.$toaster.error(e as string)
       }

@@ -5,7 +5,7 @@
     <div
       v-for="board in project.boards"
       :key="board.id"
-      class="flex flex-row items-center justify-between p-4 transition-all duration-300 hover:border-purple-300 hover:bg-purple-200"
+      class="flex flex-row items-center justify-between p-4 transition-all duration-300 hover:border-purple-300 hover:bg-purple-200 active:bg-purple-300"
       @click="switchBoard(board)">
       <h1
         class="text-xl"
@@ -15,6 +15,13 @@
         {{ board.name }}
       </h1>
       <span v-if="board.isDefault" class="italic text-gray-500">default</span>
+    </div>
+    <div
+      class="flex flex-row items-center justify-center p-3 text-center text-gray-600 transition-all duration-300 hover:border-purple-300 hover:bg-purple-200 hover:text-gray-800 active:bg-purple-300"
+      @click="$emit('create')">
+      <h1>
+        <i class="fas fa-lg fa-plus" />
+      </h1>
     </div>
   </div>
 </template>
@@ -33,7 +40,7 @@ export default defineComponent({
       required: true,
     },
   },
-  emits: ['switched'],
+  emits: ['switched', 'create'],
   computed: { ...mapStores(useProjectsStore) },
   methods: {
     switchBoard(board: Board) {
