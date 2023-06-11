@@ -125,6 +125,8 @@ export default defineComponent({
       }
     },
     editUser(username: string) {
+      if (!this.authStore.hasPermission('users:read:full')) return
+
       this.$router.push({ name: 'user', params: { username } })
     },
     async createUser() {
