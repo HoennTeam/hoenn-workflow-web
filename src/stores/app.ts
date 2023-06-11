@@ -33,7 +33,7 @@ export const useAppStore = defineStore('app', {
     async createInstance(
       name: string,
       administratorEmail: string
-    ): Promise<void> {
+    ): Promise<boolean> {
       try {
         this.createdInstance = (
           await api.post<CreateInstanceResponse>('/instance', {
@@ -45,12 +45,16 @@ export const useAppStore = defineStore('app', {
         this.name = this.createdInstance.instance.name
         this.administratorEmail =
           this.createdInstance.instance.administratorEmail
+
+        return true
       } catch (error: unknown) {
         if (error instanceof ApiError) {
           this.$toaster.error(error.message)
         }
 
         this.$toaster.error('Unknown error')
+
+        return false
       }
     },
     async signInAdministrator() {

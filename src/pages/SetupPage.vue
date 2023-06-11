@@ -68,7 +68,14 @@ export default defineComponent({
   },
   methods: {
     async createInstance() {
-      await this.appStore.createInstance(this.name, this.administratorEmail)
+      if (
+        !(await this.appStore.createInstance(
+          this.name,
+          this.administratorEmail
+        ))
+      )
+        return
+
       this.stage = 1
     },
     async proceed() {
