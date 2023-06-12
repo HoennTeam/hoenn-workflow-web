@@ -2,9 +2,9 @@
   <div class="relative">
     <div
       class="flex w-fit cursor-pointer flex-row items-center rounded bg-gray-100 py-2 px-4 text-gray-700 shadow-sm hover:bg-gray-50 hover:text-gray-800 active:shadow"
-      @click="showRolesSelector = true">
+      @click="showSelector">
       {{ currentRole }}
-      <i class="fas fa-xs fa-chevron-down ml-2" />
+      <i v-if="!disabled" class="fas fa-xs fa-chevron-down ml-2" />
     </div>
     <div
       v-if="showRolesSelector"
@@ -34,6 +34,11 @@ export default defineComponent({
       type: String,
       required: true,
     },
+    disabled: {
+      type: Boolean,
+      required: false,
+      default: false,
+    },
   },
   emits: ['selected'],
   data() {
@@ -42,6 +47,11 @@ export default defineComponent({
     }
   },
   methods: {
+    showSelector() {
+      if (this.disabled) return
+
+      this.showRolesSelector = true
+    },
     selected(role: string) {
       this.$emit('selected', role)
       this.showRolesSelector = false

@@ -17,6 +17,7 @@
       <span v-if="board.isDefault" class="italic text-gray-500">default</span>
     </div>
     <div
+      v-if="authStore.hasProjectPermission('boards:create')"
       class="flex flex-row items-center justify-center p-3 text-center text-gray-600 transition-all duration-300 hover:border-purple-300 hover:bg-purple-200 hover:text-gray-800 active:bg-purple-300"
       @click="$emit('create')">
       <h1>
@@ -32,6 +33,7 @@ import { Project } from '../types/project'
 import { Board } from '../types/board'
 import { mapStores } from 'pinia'
 import { useProjectsStore } from '../stores/projects/projects'
+import { useAuthStore } from '../stores/auth'
 
 export default defineComponent({
   props: {
@@ -41,7 +43,7 @@ export default defineComponent({
     },
   },
   emits: ['switched', 'create'],
-  computed: { ...mapStores(useProjectsStore) },
+  computed: { ...mapStores(useProjectsStore, useAuthStore) },
   methods: {
     switchBoard(board: Board) {
       this.$emit('switched', board.id)

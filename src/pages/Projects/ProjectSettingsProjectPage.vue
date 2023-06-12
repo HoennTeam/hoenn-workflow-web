@@ -7,17 +7,21 @@
         <div class="grid grid-cols-[1fr_3fr] items-center gap-4">
           <div class="col-span-2 font-bold">General</div>
           <label class="">Name</label>
-          <TextBox v-model="form.name" />
+          <TextBox
+            v-model="form.name"
+            :disabled="!authStore.hasProjectPermission('project:update')" />
 
           <label class="">Description</label>
-          <TextBox v-model="form.description" />
+          <TextBox
+            v-model="form.description"
+            :disabled="!authStore.hasProjectPermission('project:update')" />
 
           <AppButton type="submit" class="hidden">SUBMIT</AppButton>
         </div>
       </form>
     </div>
 
-    <div class="mt-6">
+    <div v-if="authStore.hasProjectPermission('project:delete')" class="mt-6">
       <div class="col-span-2 mb-4 font-bold">Danger zone</div>
 
       <AppButton variant="danger" @click="deleteProject">
@@ -34,6 +38,7 @@ import { useProjectsStore } from '../../stores/projects/projects'
 import { mapState } from 'pinia'
 
 import SavePanel from '../../components/SavePanel.vue'
+import { useAuthStore } from '../../stores/auth'
 
 export default defineComponent({
   components: {
@@ -49,7 +54,7 @@ export default defineComponent({
     }
   },
   computed: {
-    ...mapStores(useProjectsStore),
+    ...mapStores(useProjectsStore, useAuthStore),
     ...mapState(useProjectsStore, ['project', 'board']),
   },
   mounted() {

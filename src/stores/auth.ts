@@ -4,6 +4,7 @@ import { TOKEN_KEY } from '../const'
 import { ApiError } from '../types/error'
 import { Me } from '../types/me'
 import { TokenResponse } from '../types/token-response'
+import { useProjectsStore } from './projects/projects'
 
 export const useAuthStore = defineStore('auth', {
   state() {
@@ -25,7 +26,13 @@ export const useAuthStore = defineStore('auth', {
     hasPermission(permission: string): boolean {
       return !!this.user && this.user.permissions.includes(permission)
     },
-    hasProjectPermission(projectId: number, permission: string): boolean {
+    hasProjectPermission(permission: string): boolean {
+      const projectsStore = useProjectsStore()
+
+      if (!projectsStore.project) return false
+
+      const projectId = projectsStore.project.id
+
       return (
         !!this.user &&
         this.user.projectsPermissions[projectId] &&

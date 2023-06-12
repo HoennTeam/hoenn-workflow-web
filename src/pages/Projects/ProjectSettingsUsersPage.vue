@@ -13,16 +13,20 @@
         <RoleSelectorDropdown
           :roles="rolesSettingsStore.localRoles"
           :current-role="user.role.name"
+          :disabled="!authStore.hasProjectPermission('team:update')"
           class="mr-4"
           @selected="(selectedRole: string) => changeUserRole(user.user.username, selectedRole)" />
         <div
+          v-if="authStore.hasProjectPermission('team:update')"
           class="cursor-pointer rounded p-2 text-gray-400 ring-2 ring-transparent hover:text-red-600 active:text-red-700"
           @click="projectsStore.deleteUserFromProject(user.user.username)">
           <i class="fas fa-trash fa-lg" />
         </div>
       </div>
 
-      <div class="relative">
+      <div
+        v-if="authStore.hasProjectPermission('team:update')"
+        class="relative">
         <div
           class="flex cursor-pointer flex-row items-center justify-center py-6 text-gray-500 transition-colors hover:bg-purple-200 hover:text-gray-600 active:text-gray-700"
           @click="showUsersSelector = true">
@@ -52,6 +56,7 @@ import RoleSelectorDropdown from '../../components/RoleSelectorDropdown.vue'
 import UsersSelector from '../../components/UsersSelector.vue'
 import { useUsersSettingsStore } from '../../stores/settings/users'
 import { User } from '../../types/user'
+import { useAuthStore } from '../../stores/auth'
 
 export default defineComponent({
   components: { RoleSelectorDropdown, UsersSelector },
@@ -65,7 +70,8 @@ export default defineComponent({
     ...mapStores(
       useProjectsStore,
       useRolesSettingsStore,
-      useUsersSettingsStore
+      useUsersSettingsStore,
+      useAuthStore
     ),
     ...mapState(useProjectsStore, ['project']),
     availableUsers(): User[] {

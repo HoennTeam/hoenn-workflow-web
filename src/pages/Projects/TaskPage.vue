@@ -7,6 +7,7 @@
         <input
           v-model="form.title"
           type="text"
+          :disabled="!authStore.hasProjectPermission('tasks:update')"
           class="w-full rounded border-none bg-gray-50 p-1 text-lg font-bold text-gray-800 outline-none hover:bg-gray-200 hover:ring-0 focus:ring-0 active:ring-0"
           @input="save" />
       </div>
@@ -39,6 +40,7 @@
           <button
             title="Edit title and description"
             class="flex-1 p-1 hover:bg-gray-100 hover:text-gray-500 active:text-gray-600"
+            :disabled="!authStore.hasProjectPermission('tasks:update')"
             :class="{
               'bg-purple-300 text-gray-500 hover:bg-purple-400 hover:text-gray-600 active:text-gray-700':
                 editing,
@@ -56,6 +58,7 @@
           </button>
           <button
             title="Delete task"
+            :disabled="!authStore.hasProjectPermission('tasks:delete')"
             class="flex-1 p-1 hover:bg-gray-100 hover:text-red-500 active:text-red-600"
             @click="tasksStore.deleteTask(task!.id)">
             <i class="fas fa-trash" />
@@ -95,6 +98,7 @@
             &nbsp;
             <span class="text-gray-500">({{ assignee.username }})</span>
             <div
+              v-if="authStore.hasProjectPermission('assignees:update')"
               class="ml-auto h-6 w-6 rounded text-center text-transparent transition-colors group-hover:text-gray-400"
               @click="tasksStore.removeUserFromTask(assignee.username)">
               <i
@@ -102,6 +106,7 @@
             </div>
           </div>
           <div
+            v-if="authStore.hasProjectPermission('assignees:update')"
             class="group flex cursor-pointer flex-row items-center justify-center px-2 py-1 hover:bg-gray-200"
             @click="showAssigneesSelector = true">
             <div
@@ -128,6 +133,7 @@ import UsersSelector from '../../components/UsersSelector.vue'
 import { useProjectsStore } from '../../stores/projects/projects'
 import { User } from '../../types/user'
 import { modifiedFields } from '../../utils'
+import { useAuthStore } from '../../stores/auth'
 
 let easymde: EasyMDE
 
@@ -145,7 +151,7 @@ export default defineComponent({
     }
   },
   computed: {
-    ...mapStores(useTasksStore, useProjectsStore),
+    ...mapStores(useTasksStore, useProjectsStore, useAuthStore),
     ...mapState(useTasksStore, ['task']),
     descriptionMarkdown(): string {
       if (!this.task) return ''

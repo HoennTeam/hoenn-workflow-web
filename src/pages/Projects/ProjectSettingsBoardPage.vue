@@ -7,7 +7,9 @@
         <div class="grid grid-cols-[1fr_3fr] items-center gap-4">
           <div class="col-span-2 font-bold">Board</div>
           <label class="">Name</label>
-          <TextBox v-model="form.name" />
+          <TextBox
+            v-model="form.name"
+            :disabled="!authStore.hasProjectPermission('boards:update')" />
 
           <AppButton type="submit" class="hidden">SUBMIT</AppButton>
         </div>
@@ -20,6 +22,7 @@
         <draggable
           v-model="board.stages"
           group="test"
+          :disabled="!authStore.hasProjectPermission('stages:update')"
           class="my-4 w-full divide-y divide-gray-300"
           item-key="id"
           @end="handleStageReorder">
@@ -29,6 +32,7 @@
               class="group flex w-full cursor-pointer flex-row items-center justify-between px-4 py-2 transition-all duration-300 hover:border-purple-300 hover:bg-purple-200">
               {{ element.name }}
               <div
+                v-if="authStore.hasProjectPermission('stages:delete')"
                 class="h-6 w-6 rounded text-center text-transparent transition-colors group-hover:text-gray-400"
                 @click="deleteStage(element.id)">
                 <i
@@ -38,16 +42,17 @@
           </template>
           <template #footer>
             <div
+              v-if="authStore.hasProjectPermission('stages:create')"
               class="w-full px-4 py-2 text-gray-400 transition-all duration-300 hover:border-purple-300 hover:bg-purple-200 hover:text-gray-600"
               @click="showCreateStageModal = true">
-              <i class="fas fa-plus" /> Add stage
+              <i class="fas fa-plus" />Add stage
             </div>
           </template>
         </draggable>
       </div>
     </div>
 
-    <div class="mt-6">
+    <div v-if="authStore.hasProjectPermission('boards:delete')" class="mt-6">
       <div class="col-span-2 mb-4 font-bold">Danger zone</div>
 
       <AppButton
@@ -96,6 +101,7 @@ import { mapState } from 'pinia'
 import ModalWindow from '../../components/ModalWindow.vue'
 import SavePanel from '../../components/SavePanel.vue'
 import draggable from 'vuedraggable'
+import { useAuthStore } from '../../stores/auth'
 
 export default defineComponent({
   components: {
@@ -116,7 +122,7 @@ export default defineComponent({
     }
   },
   computed: {
-    ...mapStores(useProjectsStore),
+    ...mapStores(useProjectsStore, useAuthStore),
     ...mapState(useProjectsStore, ['project', 'board']),
   },
   watch: {
