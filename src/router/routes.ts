@@ -1,4 +1,4 @@
-import { type RouteRecordRaw } from 'vue-router'
+import { NavigationGuardWithThis, type RouteRecordRaw } from 'vue-router'
 
 import SignIn from '../pages/Auth/SignIn.vue'
 import AuthPage from '../pages/Auth/AuthPage.vue'
@@ -18,6 +18,25 @@ import BoardPage from '../pages/Projects/BoardPage.vue'
 import ProjectSettingsProjectPage from '../pages/Projects/ProjectSettingsProjectPage.vue'
 import ProjectSettingsBoardPage from '../pages/Projects/ProjectSettingsBoardPage.vue'
 import ProjectSettingsUsersPage from '../pages/Projects/ProjectSettingsUsersPage.vue'
+
+const preserveBoardQuery: NavigationGuardWithThis<undefined> = (
+  to,
+  from,
+  next
+) => {
+  console.log('!!!!')
+  if (from.query.board && !to.query.board) {
+    return next({
+      ...to,
+      query: {
+        ...to.query,
+        board: from.query.board,
+      },
+    })
+  }
+
+  next()
+}
 
 export const routes: RouteRecordRaw[] = [
   { path: '/', name: 'home', redirect: '/projects' },
@@ -61,26 +80,35 @@ export const routes: RouteRecordRaw[] = [
     name: 'project',
     component: ProjectPage,
     children: [
-      { path: '', name: 'project-board', component: BoardPage },
+      {
+        beforeEnter: preserveBoardQuery,
+        path: '',
+        name: 'project-board',
+        component: BoardPage,
+      },
       {
         path: 'settings',
         name: 'project-settings',
         component: ProjectSettingsPage,
+        beforeEnter: preserveBoardQuery,
         redirect: { name: 'project-settings-project' },
         children: [
           {
             path: 'project',
             name: 'project-settings-project',
+            beforeEnter: preserveBoardQuery,
             component: ProjectSettingsProjectPage,
           },
           {
             path: 'board',
             name: 'project-settings-board',
+            beforeEnter: preserveBoardQuery,
             component: ProjectSettingsBoardPage,
           },
           {
             path: 'users',
             name: 'project-settings-users',
+            beforeEnter: preserveBoardQuery,
             component: ProjectSettingsUsersPage,
           },
         ],
