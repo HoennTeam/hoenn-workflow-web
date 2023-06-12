@@ -17,7 +17,10 @@
       <span v-if="board.isDefault" class="italic text-gray-500">default</span>
     </div>
     <div
-      v-if="authStore.hasProjectPermission('boards:create')"
+      v-if="
+        authStore.hasPermission('projects:update') ||
+        authStore.hasProjectPermission('boards:create')
+      "
       class="flex flex-row items-center justify-center p-3 text-center text-gray-600 transition-all duration-300 hover:border-purple-300 hover:bg-purple-200 hover:text-gray-800 active:bg-purple-300"
       @click="$emit('create')">
       <h1>

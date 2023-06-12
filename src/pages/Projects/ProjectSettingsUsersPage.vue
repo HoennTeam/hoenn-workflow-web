@@ -13,11 +13,17 @@
         <RoleSelectorDropdown
           :roles="rolesSettingsStore.localRoles"
           :current-role="user.role.name"
-          :disabled="!authStore.hasProjectPermission('team:update')"
+          :disabled="
+            !authStore.hasPermission('projects:update') &&
+            !authStore.hasProjectPermission('team:update')
+          "
           class="mr-4"
           @selected="(selectedRole: string) => changeUserRole(user.user.username, selectedRole)" />
         <div
-          v-if="authStore.hasProjectPermission('team:update')"
+          v-if="
+            authStore.hasPermission('projects:update') ||
+            authStore.hasProjectPermission('team:update')
+          "
           class="cursor-pointer rounded p-2 text-gray-400 ring-2 ring-transparent hover:text-red-600 active:text-red-700"
           @click="projectsStore.deleteUserFromProject(user.user.username)">
           <i class="fas fa-trash fa-lg" />
@@ -25,7 +31,10 @@
       </div>
 
       <div
-        v-if="authStore.hasProjectPermission('team:update')"
+        v-if="
+          authStore.hasPermission('projects:update') ||
+          authStore.hasProjectPermission('team:update')
+        "
         class="relative">
         <div
           class="flex cursor-pointer flex-row items-center justify-center py-6 text-gray-500 transition-colors hover:bg-purple-200 hover:text-gray-600 active:text-gray-700"

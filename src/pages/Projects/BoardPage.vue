@@ -10,7 +10,10 @@
         item-key="id"
         class="space-y-2 py-4"
         ghost-class="task-ghost"
-        :disabled="!authStore.hasProjectPermission('tasks:move')"
+        :disabled="
+          !authStore.hasPermission('projects:update') &&
+          !authStore.hasProjectPermission('tasks:move')
+        "
         @change="(e: any) => taskDrag(stage.id, e)">
         <template #item="{ element }">
           <div
@@ -28,7 +31,10 @@
         </template>
       </draggable>
       <div
-        v-if="authStore.hasProjectPermission('tasks:create')"
+        v-if="
+          authStore.hasPermission('projects:update') ||
+          authStore.hasProjectPermission('tasks:create')
+        "
         class="flex h-16 flex-col items-center justify-center space-y-1 rounded-md border-4 border-gray-300/50 p-2 font-bold text-gray-300/50 opacity-0 hover:border-gray-300 hover:text-gray-300 active:border-gray-400 active:text-gray-400 group-hover:opacity-100"
         @click="tasksStore.createTask(stage.id)">
         <i class="fas fa-plus fa-2xl" />

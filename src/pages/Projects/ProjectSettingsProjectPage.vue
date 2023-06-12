@@ -9,19 +9,30 @@
           <label class="">Name</label>
           <TextBox
             v-model="form.name"
-            :disabled="!authStore.hasProjectPermission('project:update')" />
+            :disabled="
+              !authStore.hasPermission('projects:update') &&
+              !authStore.hasProjectPermission('project:update')
+            " />
 
           <label class="">Description</label>
           <TextBox
             v-model="form.description"
-            :disabled="!authStore.hasProjectPermission('project:update')" />
+            :disabled="
+              !authStore.hasPermission('projects:update') &&
+              !authStore.hasProjectPermission('project:update')
+            " />
 
           <AppButton type="submit" class="hidden">SUBMIT</AppButton>
         </div>
       </form>
     </div>
 
-    <div v-if="authStore.hasProjectPermission('project:delete')" class="mt-6">
+    <div
+      v-if="
+        authStore.hasPermission('projects:delete') ||
+        authStore.hasProjectPermission('project:delete')
+      "
+      class="mt-6">
       <div class="col-span-2 mb-4 font-bold">Danger zone</div>
 
       <AppButton variant="danger" @click="deleteProject">
