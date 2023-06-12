@@ -4,4 +4,5 @@ export interface Me {
   readonly email: string
   readonly roleName: string
   readonly permissions: string[]
+  readonly projectsPermissions: Record<number, string[]>
 }
